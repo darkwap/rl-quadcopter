@@ -30,21 +30,22 @@ class Task():
         
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward_x = np.tanh(1-0.003*abs(self.sim.pose[0]-self.target_pos[0]))
-        reward_y = np.tanh(1-0.003*abs(self.sim.pose[1]-self.target_pos[1]))
-        reward_z = np.tanh(1-0.003*abs(self.sim.pose[2]-self.target_pos[2]))
+        #some experimental down below
+        #reward_x = np.tanh(1-0.003*abs(self.sim.pose[0]-self.target_pos[0]))
+        #reward_y = np.tanh(1-0.003*abs(self.sim.pose[1]-self.target_pos[1]))
+        #reward_z = np.tanh(1-0.003*abs(self.sim.pose[2]-self.target_pos[2]))
         #print('reward z: ',reward_z,' reward x: ',reward_x,' rewared y: ',reward_y) 
         #print(' distance x: ',abs(self.sim.pose[0]-self.target_pos[0]),' distance y: ',abs(self.sim.pose[1]-self.target_pos[1]),'distance z: ',abs(self.sim.pose[2]-self.target_pos[2]))
         #return np.tanh(reward)
         #rewardxxx = reward_x+reward_y+reward_z
         #print('rew1 ',rewardxxx,' rew2 ',np.tanh(1-0.002*abs(self.sim.pose[:3]-self.target_pos[:3])).sum())
         if abs(self.sim.pose[2]-self.target_pos[2]) < 10:
-            print('closer to z < 20',self.sim.pose[2]-self.target_pos[2])
-            extra_z = 0.5
+            print('closer to z < 10',self.sim.pose[2]-self.target_pos[2])
+            extra_z = 0.1
         else: 
             extra_z = 0
         
-        rewardsum = np.tanh(1-0.001*abs(self.target_pos[2]-self.sim.pose[2]))
+        rewardsum = np.tanh(1-0.00255*abs(self.target_pos[2]-self.sim.pose[2])+extra_z)
         return rewardsum
 
     def step(self, rotor_speeds):
