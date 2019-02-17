@@ -1,4 +1,4 @@
-from keras import layers, models, optimizers, initializers
+from keras import layers, models, optimizers, initializers, regularizers
 from keras import backend as K
 
 class Actor:
@@ -31,19 +31,19 @@ class Actor:
         states = layers.Input(shape=(self.state_size,), name='states')
 
         # Add hidden layers
-        net = layers.Dense(units=500)(states)
+        net = layers.Dense(units=500, kernel_regularizer=regularizers.l2(0.01))(states)
         net = layers.normalization.BatchNormalization()(net)
         net = layers.Activation('relu')(net)
-        net = layers.Dense(units=200)(net)
+        net = layers.Dense(units=200, kernel_regularizer=regularizers.l2(0.01))(net)
         net = layers.normalization.BatchNormalization()(net)
         net = layers.Activation('relu')(net)
         
         # Add final output layer with sigmoid activation
-        kernel_init = layers.initializers.random_uniform(minval=-0.003, maxval=0.003)
+        #kernel_init = layers.initializers.random_uniform(minval=-0.003, maxval=0.003)
         #raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
         #    name='raw_actions', kernel_initializer=kernel_init)(net)
         raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
-            name='raw_actions')(net)
+            name='raw_actions', kernel_regularizer=regularizers.l2(0.01))(net)
 
         # Scale [0, 1] output for each action dimension to proper range
         actions = layers.Lambda(lambda x: (x * self.action_range) + self.action_low,
@@ -59,7 +59,7 @@ class Actor:
         # Incorporate any additional losses here (e.g. from regularizers)
 
         # Define optimizer and training function
-        optimizer = optimizers.Adam(lr=0.0001)
+        optimizer = optimizers.Adam(lr=0.0001, clipvalue=1.)
         updates_op = optimizer.get_updates(params=self.model.trainable_weights, loss=loss)
         self.train_fn = K.function(
             inputs=[self.model.input, action_gradients, K.learning_phase()],
